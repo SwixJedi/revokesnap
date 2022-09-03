@@ -46,7 +46,9 @@ const approveActors = async () => {
 			// Grant allowance to each actor
 			for (let k=0; k<actors.length; k++) {
 				const allowance = BigNumber.from("5000000000000000000");
-				await token.approve(actors[k].address, allowance);
+				await (
+					await token.approve(actors[k].address, allowance)
+				).wait();
 			}
 		}
 	}
