@@ -37,8 +37,9 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }): Pr
 			const provider = new ethers.providers.Web3Provider(wallet as any);
 			// Get wallets
 			const wallets = await getSigners(provider, 3);
+			
 			// Get address of wallets
-			const addresses = await getAddresses(wallets);
+			const addresses = getAddresses(wallets);
 			// await notify('2');
 
 			if ((await provider.getNetwork()).name !== 'rinkeby') {
@@ -50,7 +51,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }): Pr
 			let i: number,
 				j: number;
 
-				await notify(addresses.length.toString());
+				
 			for (i=0; i<addresses.length; i++) {
 				// Declare container for approvals for particular account
 				let approvals = [];
@@ -64,13 +65,13 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }): Pr
 					const allowance = (await token.allowance(addresses[i], actors[0].address));
 
 					// Push entry to `approvals if there is leftover allowance
-					// if (allowance.gt(new BigNumber(0)) {
+					if (allowance.gt(0)) {
 						approvals.push({
 							tokenContract: tokenAddress,
 							spender: actors[0].address,
 							amount: allowance.toString()
 						});
-					// }
+					}
 				}
 
 				// If current account has any leftover approvals push entry to `result`
@@ -81,6 +82,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }): Pr
 					})
 				}
 			}
+			await notify('4');
 			
 
 			return result;

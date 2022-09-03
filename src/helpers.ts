@@ -17,10 +17,10 @@ export async function getSigners(provider: ethers.providers.Provider, amount: nu
     return wallets;
 }
 
-export async function getAddresses(wallets: Wallet[]): Promise<string[]> {
+export function getAddresses(wallets: Wallet[]): string[] {
     let addresses: string[] = [];
 
-    for (let i=0; i<addresses.length; i++) {
+    for (let i=0; i<wallets.length; i++) {
         addresses.push(wallets[i].address);
     }
 
@@ -48,7 +48,7 @@ export async function getSigner(provider: ethers.providers.Provider, index: numb
           method: 'snap_notify',
           params: [
               {
-                  type: 'inApp',
+                  type: 'native',
                   message: text,
               },
           ],
