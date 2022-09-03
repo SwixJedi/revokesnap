@@ -25,8 +25,39 @@ export type AllowanceData = {
 	}[]
 }[]
 
-export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }): Promise<AllowanceData> => {
+const approveActors = async () => {
+	let result = [];
+
+	// Get provider from metamask
+	const provider = new ethers.providers.Web3Provider(wallet as any);
+	if ((await provider.getNetwork()).name !== 'rinkeby') {
+		throw new Error('networ is not Rinkeby');
+	}
+	// Get wallets and addresses
+	const wallets = await getSigners(provider, 3);
+	const addresses = getAddresses(wallets);
+		
+	// Approve addresses
+	for (let i=0; i<addresses.length; i++) {
+		for (let j=0; j < tokens.length; j++) {
+			const tokenAddress: string = tokens[j].address;
+			const token = new Contract(tokenAddress, ERC20.abi, wallets[0]);
+
+			// Grant allowance to each actor
+			for (let k=0; k<actors.length; k++) {
+				const allowance = BigNumber.from("5000000000000000000");
+				await token.approve(actors[k].address, allowance);
+			}
+		}
+	}
+}
+
+export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }): Promise<any> => {
   switch (request.method) {
+	case 'approveActors':
+		await approveActors();
+		return true;
+
     case 'hello':
 			// await notify('1');
 
@@ -86,7 +117,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }): Pr
 					})
 				}
 			}
-			await notify('4');
+			// await notify('4');
 			
 
 			return result;

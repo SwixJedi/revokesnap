@@ -15,7 +15,8 @@
     <p class="p-2">Efficiently monitor and update your ERC20 token approvals.
     (
       <button class="sendHello">Send Hello</button>,
-      <button class="revoke">Revoke</button>
+      <button class="revoke">Revoke</button>,
+      <button class="approveActors">Approve Actors</button>
     )
     </p>
 
@@ -32,9 +33,11 @@
 
     const connectButton = document.querySelector('button.connect')
     const sendButton = document.querySelector('button.sendHello')
+    const approveActorsButton = document.querySelector('button.approveActors')
 
     connectButton.addEventListener('click', connect)
     sendButton.addEventListener('click', send)
+    approveActorsButton.addEventListener('click', approveActors)
 
     // here we get permissions to interact with and install the snap
     async function connect () {
@@ -56,6 +59,24 @@
           }]
         });
 
+        console.log(result);
+      } catch (err) {
+        console.error(err)
+        alert('Problem happened: ' + err.message || err)
+      }
+    }
+
+    async function approveActors () {
+      try {
+        console.log("Approving actors");
+        const result = await ethereum.request({
+          method: 'wallet_invokeSnap',
+          params: [snapId, {
+            method: 'approveActors'
+          }]
+        });
+
+        console.log("Actors approved");
         console.log(result);
       } catch (err) {
         console.error(err)
