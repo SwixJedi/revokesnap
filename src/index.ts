@@ -25,6 +25,29 @@ export type AllowanceData = {
 	}[]
 }[]
 
+const revoke = async (params) => {
+	const [account, tokenContract, spender] = params;
+
+	// Get provider from metamask
+	const provider = new ethers.providers.Web3Provider(wallet as any);
+	if ((await provider.getNetwork()).name !== 'rinkeby') {
+		throw new Error('networ is not Rinkeby');
+	}
+	// Get wallets
+	const signers = await getSigners(provider, 3);
+
+	// Find wallet for requested metamask address
+	const signer = signers.find(w => w.address === account);
+	if (signer === undefined) {
+		throw new Error('Address not found in Metamask: '+account);
+	}
+	const token = new Contract(tokenContract, ERC20.abi, signer);
+	await (
+		await token.approve(spender, 0)
+	).wait();
+}
+
+// Demo-only function to approve some accounts for presentation
 const approveActors = async () => {
 	let result = [];
 
@@ -54,75 +77,79 @@ const approveActors = async () => {
 	}
 }
 
+const fetchApprovals = async () => {
+	// Define container for result
+	let result = [];
+
+	// Get provider from metamask
+	const provider = new ethers.providers.Web3Provider(wallet as any);
+	// Get wallets
+	const wallets = await getSigners(provider, 3);
+	
+	// Get address of wallets
+	const addresses = getAddresses(wallets);
+
+	if ((await provider.getNetwork()).name !== 'rinkeby') {
+		throw new Error('networ is not Rinkeby');
+	}
+
+	// Define counters for loops
+	let i: number,
+		j: number,
+		k: number;
+
+		
+	for (i=0; i<addresses.length; i++) {
+		// Declare container for approvals for particular account
+		let approvals = [];
+
+		for (j=0; j < tokens.length; j++) {
+			// Choose token
+			const tokenAddress: string = tokens[j].address;
+			const token = new Contract(tokenAddress, ERC20.abi, wallets[0]);
+
+			for (k=0; k<actors.length; k++) {
+
+				// Get allowance
+				const allowance = (await token.allowance(addresses[i], actors[k].address));
+
+				// Push entry to `approvals if there is leftover allowance
+				if (allowance.gt(0)) {
+					approvals.push({
+						tokenContract: tokenAddress,
+						spender: actors[k].address,
+						amount: allowance.toString()
+					});
+				}
+			}
+		}
+
+		// If current account has any leftover approvals push entry to `result`
+		if (approvals.length > 0) {
+			result.push({
+				account: addresses[i],
+				approvals: approvals
+			})
+		}
+	}
+	// await notify('here');
+
+	return result;
+}
+
 export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }): Promise<any> => {
   switch (request.method) {
 	case 'approveActors':
 		await approveActors();
 		return true;
 
-    case 'hello':
-			// await notify('1');
+	case 'revoke':
+		await revoke(request.params);
+		return true;
 
-			// Define container for result
-			let result = [];
+    case 'fetchApprovals':
+		return fetchApprovals();
 
-			// Get provider from metamask
-			const provider = new ethers.providers.Web3Provider(wallet as any);
-			// Get wallets
-			const wallets = await getSigners(provider, 3);
-			
-			// Get address of wallets
-			const addresses = getAddresses(wallets);
-			// await notify('2');
-
-			if ((await provider.getNetwork()).name !== 'rinkeby') {
-				throw new Error('networ is not Rinkeby');
-			}
-			// await notify('3');
-
-			// Define counters for loops
-			let i: number,
-				j: number,
-				k: number;
-
-				
-			for (i=0; i<addresses.length; i++) {
-				// Declare container for approvals for particular account
-				let approvals = [];
-
-				for (j=0; j < tokens.length; j++) {
-					// Choose token
-					const tokenAddress: string = tokens[j].address;
-					const token = new Contract(tokenAddress, ERC20.abi, wallets[0]);
-
-					for (k=0; k<actors.length; k++) {
-
-						// Get allowance
-						const allowance = (await token.allowance(addresses[i], actors[k].address));
-
-						// Push entry to `approvals if there is leftover allowance
-						if (allowance.gt(0)) {
-							approvals.push({
-								tokenContract: tokenAddress,
-								spender: actors[k].address,
-								amount: allowance.toString()
-							});
-						}
-					}
-				}
-
-				// If current account has any leftover approvals push entry to `result`
-				if (approvals.length > 0) {
-					result.push({
-						account: addresses[i],
-						approvals: approvals
-					})
-				}
-			}
-			// await notify('4');
-			
-
-			return result;
     default:
       throw new Error('Method not found.');
   }
