@@ -26,6 +26,10 @@
 
     <button class="connect">Connect</button>
     <button class="sendHello">Send Hello</button>
+    <br/>
+    <br/>
+
+    
   </body>
 
   <script>
@@ -50,12 +54,14 @@
     // here we call the snap's "hello" method
     async function send () {
       try {
-        await ethereum.request({
+        const result = await ethereum.request({
           method: 'wallet_invokeSnap',
           params: [snapId, {
             method: 'hello'
           }]
-        })
+        });
+
+        console.log(result);
       } catch (err) {
         console.error(err)
         alert('Problem happened: ' + err.message || err)

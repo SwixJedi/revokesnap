@@ -1,8 +1,10 @@
 import { OnRpcRequestHandler } from '@metamask/snap-types';
 import {
-  BIP44CoinTypeNode,
-  getBIP44AddressKeyDeriver
-} from '@metamask/key-tree';
+	getAddresses,
+  getSigner,
+  getSigners,
+	notify
+} from './helpers';
 import {
   BigNumber,
   Contract,
@@ -10,74 +12,78 @@ import {
   Wallet,
 	utils
 } from 'ethers';
-import { ERC20, RETURN_FAIL } from './constants';
+import { ERC20 } from './constants';
+import { actors } from './actors';
+import { tokens } from './tokens';
 
-export async function getSigner(provider: ethers.providers.Provider, index: number): Promise<Wallet> {
-  // Metamask uses default HD derivation path
-  // https://metamask.zendesk.com/hc/en-us/articles/360060331752-Importing-a-seed-phrase-from-another-wallet-software-derivation-path
-  const ethereumNode = (await wallet.request({
-    method: 'snap_getBip44Entropy_60',
-  })) as unknown as BIP44CoinTypeNode;
-  const deriveEthereumAccount = await getBIP44AddressKeyDeriver(ethereumNode);
-  // A bug:
-  // The current public version of @metamask/key-tree's derive function returns the private key and chain code in a single buffer
-  // Ether.js also accepts a 64 byte buffer without errors and returns wrong keys
-  // Related issue: https://github.com/ethers-io/ethers.js/issues/2926
-  // TODO(ritave): Update to newest key-tree when available and use deriveEthereumAccount(0).privateKey
-  const mainAccountKey = (await deriveEthereumAccount(index)).privateKey;
-  return new Wallet(mainAccountKey, provider);
-}
+export type AllowanceData = {
+	account: string,
+	approvals: {
+		tokenContract: string,
+		spender: string,
+		amount: string 
+	}[]
+}[]
 
-export async function notify(text: string) {
-	await wallet.request({
-		method: 'snap_notify',
-		params: [
-			{
-				type: 'inApp',
-				message: text,
-			},
-		],
-	});
-}
-
-export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => {
+export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }): Promise<AllowanceData> => {
   switch (request.method) {
     case 'hello':
 			// await notify('1');
 
+			// Define container for result
+			let result = [];
+
 			// Get provider from metamask
 			const provider = new ethers.providers.Web3Provider(wallet as any);
-			// Create a wallet from account with given index
-			const wallet0 = await getSigner(provider, 0);
-			// Get address of created wallet
-			const address0 = wallet0.address;
+			// Get wallets
+			const wallets = await getSigners(provider, 3);
+			// Get address of wallets
+			const addresses = await getAddresses(wallets);
 			// await notify('2');
 
 			if ((await provider.getNetwork()).name !== 'rinkeby') {
-				return RETURN_FAIL;
+				throw new Error('networ is not Rinkeby');
 			}
 			// await notify('3');
 
-			const daiAddress: string = '0x6a9865ade2b6207daac49f8bcba9705deb0b0e6d';
+			// Define counters for loops
+			let i: number,
+				j: number;
 
-			const DAI = new Contract(daiAddress, ERC20.abi, wallet0);
-			const allowance: string = (await DAI.allowance('0x246747844aa840352456ccb4e8ec2b5498ad08f2','0x8f668162a4c20599d02148a963752889ae3094df')).toString();
+				await notify(addresses.length.toString());
+			for (i=0; i<addresses.length; i++) {
+				// Declare container for approvals for particular account
+				let approvals = [];
 
-			await notify('4');
+				for (j=0; j < tokens.length; j++) {
+					// Choose token
+					const tokenAddress: string = tokens[j].address;
+					const token = new Contract(tokenAddress, ERC20.abi, wallets[0]);
 
-			// Show request for confirmation
-      return await wallet.request({
-        method: 'snap_confirm',
-        params: [
-          {
-            prompt: `Hello, ${origin}!`,
-            description:
-              'This custom confirmation is just for display purposes.',
-            textAreaContent:
-              allowance
-          },
-        ],
-      });
+					// Get allowance
+					const allowance = (await token.allowance(addresses[i], actors[0].address));
+
+					// Push entry to `approvals if there is leftover allowance
+					// if (allowance.gt(new BigNumber(0)) {
+						approvals.push({
+							tokenContract: tokenAddress,
+							spender: actors[0].address,
+							amount: allowance.toString()
+						});
+					// }
+				}
+
+				// If current account has any leftover approvals push entry to `result`
+				if (approvals.length > 0) {
+					result.push({
+						account: addresses[i],
+						approvals: approvals
+					})
+				}
+			}
+			
+
+			return result;
     default:
       throw new Error('Method not found.');
   }
