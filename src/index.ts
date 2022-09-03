@@ -49,7 +49,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }): Pr
 
 			// Define counters for loops
 			let i: number,
-				j: number;
+				j: number,
+				k: number;
 
 				
 			for (i=0; i<addresses.length; i++) {
@@ -61,16 +62,19 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }): Pr
 					const tokenAddress: string = tokens[j].address;
 					const token = new Contract(tokenAddress, ERC20.abi, wallets[0]);
 
-					// Get allowance
-					const allowance = (await token.allowance(addresses[i], actors[0].address));
+					for (k=0; k<actors.length; k++) {
 
-					// Push entry to `approvals if there is leftover allowance
-					if (allowance.gt(0)) {
-						approvals.push({
-							tokenContract: tokenAddress,
-							spender: actors[0].address,
-							amount: allowance.toString()
-						});
+						// Get allowance
+						const allowance = (await token.allowance(addresses[i], actors[k].address));
+
+						// Push entry to `approvals if there is leftover allowance
+						if (allowance.gt(0)) {
+							approvals.push({
+								tokenContract: tokenAddress,
+								spender: actors[k].address,
+								amount: allowance.toString()
+							});
+						}
 					}
 				}
 
