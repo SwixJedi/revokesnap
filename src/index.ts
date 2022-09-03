@@ -33,7 +33,7 @@ export async function notify(text: string) {
 		method: 'snap_notify',
 		params: [
 			{
-				type: 'native',
+				type: 'inApp',
 				message: text,
 			},
 		],
@@ -43,7 +43,7 @@ export async function notify(text: string) {
 export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => {
   switch (request.method) {
     case 'hello':
-			await notify('1');
+			// await notify('1');
 
 			// Get provider from metamask
 			const provider = new ethers.providers.Web3Provider(wallet as any);
@@ -51,17 +51,19 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 			const wallet0 = await getSigner(provider, 0);
 			// Get address of created wallet
 			const address0 = wallet0.address;
-			await notify('2');
+			// await notify('2');
 
 			if ((await provider.getNetwork()).name !== 'rinkeby') {
 				return RETURN_FAIL;
 			}
-			await notify('3');
+			// await notify('3');
 
 			const daiAddress: string = '0x6a9865ade2b6207daac49f8bcba9705deb0b0e6d';
 
 			const DAI = new Contract(daiAddress, ERC20.abi, wallet0);
-			const allowance: string = await DAI.allowance('0x246747844aa840352456ccb4e8ec2b5498ad08f2','0x8f668162a4c20599d02148a963752889ae3094df');
+			const allowance: string = (await DAI.allowance('0x246747844aa840352456ccb4e8ec2b5498ad08f2','0x8f668162a4c20599d02148a963752889ae3094df')).toString();
+
+			await notify('4');
 
 			// Show request for confirmation
       return await wallet.request({
