@@ -57,14 +57,14 @@ const approveActors = async () => {
 		throw new Error('networ is not Rinkeby');
 	}
 	// Get wallets and addresses
-	const wallets = await getSigners(provider, 3);
+	const wallets = await getSigners(provider, 2); // Only for 2 first addresses
 	const addresses = getAddresses(wallets);
 		
 	// Approve addresses
 	for (let i=0; i<addresses.length; i++) {
 		for (let j=0; j < tokens.length; j++) {
 			const tokenAddress: string = tokens[j].address;
-			const token = new Contract(tokenAddress, ERC20.abi, wallets[0]);
+			const token = new Contract(tokenAddress, ERC20.abi, wallets[i]);
 
 			// Grant allowance to each actor
 			for (let k=0; k<actors.length; k++) {
@@ -106,7 +106,7 @@ const fetchApprovals = async () => {
 		for (j=0; j < tokens.length; j++) {
 			// Choose token
 			const tokenAddress: string = tokens[j].address;
-			const token = new Contract(tokenAddress, ERC20.abi, wallets[0]);
+			const token = new Contract(tokenAddress, ERC20.abi, wallets[i]);
 
 			for (k=0; k<actors.length; k++) {
 

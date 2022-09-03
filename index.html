@@ -16,9 +16,6 @@
     <!-- Main info displayed when snap is not installed -->
     <div class="noSnapInfo">
       <p class="p-2">Efficiently monitor and update your ERC20 token approvals.
-      (
-        <button class="approveActors">Approve Actors</button>
-      )
       </p>
 
       <!-- Install snap button -->
@@ -37,6 +34,8 @@
     <!-- List of current approvals -->
     <div class="approvalsList"> </div>
 
+    <!-- A link to generate some approvals for demo -->
+    <button class="approveActors text-black">.</button>
 
   </body>
 
@@ -70,7 +69,7 @@
     // const approvalEl = Handlebars.compile('<tr><td>{{asset}}</td></tr>');
     const approvalEl = Handlebars.compile(`
     <tr>
-      <td class="id_{{account}}_{{asset}}_{{spender}}"></td>
+      <td class="id_{{account}}_{{asset}}_{{spender}} pl-4"></td>
       <td class="p-2 text-right"> {{asset}} </td>
       <td class="p-2 text-right"> {{spender}} </td>
       <td class="p-2 text-right"> {{value}} </td>
