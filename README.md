@@ -2,6 +2,9 @@
 
 This project is a functional proof-of-concept of using the upcoming MetaMask feature called Snaps to facilitate browsing and revoking approvals given by user to ERC20 Tokens. It has been implemented during ethWarsaw hackathon by Cassandra team.
 
+Video pitch:
+https://youtu.be/z3_Okkp8NHw
+
 
 ## Table of Contents
 
