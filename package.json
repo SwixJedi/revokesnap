@@ -1,11 +1,11 @@
 {
-  "name": "template-typescript-snap",
-  "version": "1.0.0",
+  "name": "revokesnap",
+  "version": "0.0.1",
   "private": true,
-  "description": "The 'Hello, world!' of MetaMask Snaps, now written in TypeScript.",
+  "description": "This project is a functional proof-of-concept of using the upcoming MetaMask feature called Snaps to facilitate browsing and revoking approvals given by user to ERC20 Tokens. It has been implemented during ethWarsaw hackathon by Cassandra team.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MetaMask/template-typescript-snap.git"
+    "url": "https://github.com/SwixJedi/revokesnap.git"
   },
   "license": "GPL-3.0-or-later",
   "main": "src/index.ts",
