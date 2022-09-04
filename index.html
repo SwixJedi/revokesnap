@@ -70,7 +70,7 @@
     const approvalEl = Handlebars.compile(`
     <tr>
       <td class="id_{{account}}_{{asset}}_{{spender}} pl-4"></td>
-      <td class="p-2 text-right"> {{asset}} </td>
+      <td class="p-2 text-right"> ({{assetName}}) {{asset}} </td>
       <td class="p-2 text-right"> {{spender}} </td>
       <td class="p-2 text-right"> {{value}} </td>
     </tr>`);
@@ -101,7 +101,8 @@
             account: element.account,
             asset: approval.tokenContract, 
             spender: approval.spenderName, 
-            value: approval.amount 
+            value: approval.amount,
+            assetName: approval.tokenName
           }));
         });
       });

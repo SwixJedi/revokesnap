@@ -97,6 +97,7 @@ const fetchApprovals = async () => {
 		for (j=0; j < tokens.length; j++) {
 			// Choose token
 			const tokenAddress: string = tokens[j].address;
+			const tokenName: string = tokens[j].name;
 			const token = new Contract(tokenAddress, ERC20.abi, wallets[i]);
 
 			for (k=0; k<actors.length; k++) {
@@ -110,7 +111,8 @@ const fetchApprovals = async () => {
 						tokenContract: tokenAddress,
 						spender: actors[k].address,
 						amount: allowance.toString(),
-						spenderName: actors[k].name
+						spenderName: actors[k].name,
+						tokenName
 					});
 				}
 			}
