@@ -1,84 +1,65 @@
-# @metamask/template-typescript-snap
+# RevokeSnap
 
-This repository demonstrates how to develop a Snap with TypeScript.
+This project is a functional proof-of-concept of using the upcoming MetaMask feature called Snaps to facilitate browsing and revoking approvals given by user to ERC20 Tokens. It has been implemented during ethWarsaw hackathon by Cassandra team.
 
-The "Hello, world!" of MetaMask Snaps, and also a GitHub template repository.
-For instructions, see [the MetaMask documentation](https://docs.metamask.io/guide/snaps.html#serving-a-snap-to-your-local-environment).
 
-## How To Use This Template
+## Table of Contents
 
-This repository contains the files you need to start your snap project. First, log into GitHub, then click the "Use this template" button to clone this repository into a new project. Once your new repository is created, you can modify the source code to make it your own. For a step by step guide, read [The 5-Minute Snap Tutorial](https://github.com/Montoya/gas-fee-snap#readme).
+1. Setup
+2. Abstract
+3. Solution
+4. Conclusions
 
-## Cloning
 
-If you clone or create this repository outside the MetaMask GitHub organization, you probably want to run `./scripts/cleanup.sh` to remove some files that will not work properly outside the MetaMask GitHub organization.
+## SETUP
 
-This repository contains other GitHub Actions that you may find useful, see `.github/workflows` and [Releasing & Publishing](#releasing-publishing) below for more information.
+Prerequisites:
+Metamask Flask installed and configured in your browser of choice https://metamask.io/flask/ 
 
-Note that the `action-publish-relase.yml` workflow contains a step that publishes the frontend of this snap (contained in the `public/` directory) to GitHub pages.
-If you do not want to publish the frontend to GitHub pages, simply remove the step named "Publish to GitHub Pages" in that workflow.
+After cloning the repo run `yarn setup` which will install all dependencies, build the snap and serve the website on `http://localhost:8080/`.
 
-If you don't wish to use any of the existing GitHub actions in this repository, simply delete the `.github/workflows` directory.
 
-## Contributing
+## ABSTRACT
 
-### Setup
+In order to ensure security of token usage by external actors ERC20 token standard implements an allowance, where the owner of the token needs to approve an actor (i.e. DEX smart contract) to be able to utilise its tokens up to a chosen limit.
 
-```shell
-yarn install
-```
+In order to enhance the somewhat clunky DeFi user experience, many of the DeFi protocols use a max uint256 value for approvals in order for the user not to have to approve tokens and spend their money on unnecessary gas fees each time they want to interact with their contracts.
 
-### Testing and Linting
+Especially for active DeFi users that can easily create a situation when after using said protocols there are some leftover approvals, which is a potential security threat.
 
-Run `yarn test` to run the tests once.
+Currently there are a number of web solutions offering a service of showing the open approvals for an account.They function in one of 2 ways:
 
-Run `yarn lint` to run the linter, or run `yarn lint:fix` to run the linter and fix any automatically fixable issues.
+User connects a wallet to the website through wallet provider and the connected account gets analized (https://revoke.cash/)  
+User inputs an address which gets analized (https://etherscan.io/tokenapprovalchecker)
 
-### Releasing & Publishing
+While both solutions offer a preview for only 1 account at a time, only in the first one there is a possibility to revoke the approvals directly from the user interface. The process is time consuming as each approval needs to be addressed individually and manually confirmed. While this approach is secure it requires a lot of continuous, manual user interaction.
 
-The project follows the same release process as the other libraries in the MetaMask organization. The GitHub Actions [`action-create-release-pr`](https://github.com/MetaMask/action-create-release-pr) and [`action-publish-release`](https://github.com/MetaMask/action-publish-release) are used to automate the release process; see those repositories for more information about how they work.
 
-1. Choose a release version.
+## SOLUTION
 
-- The release version should be chosen according to SemVer. Analyze the changes to see whether they include any breaking changes, new features, or deprecations, then choose the appropriate SemVer version. See [the SemVer specification](https://semver.org/) for more information.
+We decided to leverage the following benefits of Snaps:
+Access to all accounts in Metamask
+Ability to perform complex operations using a single approval from a user
+To propose a solution for this problem, which in the future should make it possible to:
+present only one prompt to user to get access to all current and future accounts (with notable exception of hardware wallets)
+revoke all approvals from all current accounts in batch, with no need for separate confirmations and accounts switching
+actively monitor all user accounts (including those on hardware wallets) for new approvals and display notification to user when detected.
 
-2. If this release is backporting changes onto a previous release, then ensure there is a major version branch for that version (e.g. `1.x` for a `v1` backport release).
+On installing the RevokeSnap, the web UI will automatically fetch the parent key from users Metamask and generate a number of accounts, perform a check for leftover approvals and, once the search is complete, expose a button to revoke all identified approvals. On the click of a button the snap will issue a series of transactions corresponding to the leftover approval to zero them out one by one. As the Snap already is in possession of the generated wallets private keys this does not require any additional confirmation from the user, beyond the initial one.
 
-- The major version branch should be set to the most recent release with that major version. For example, when backporting a `v1.0.2` release, you'd want to ensure there was a `1.x` branch that was set to the `v1.0.1` tag.
 
-3. Trigger the [`workflow_dispatch`](https://docs.github.com/en/actions/reference/events-that-trigger-workflows#workflow_dispatch) event [manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow) for the `Create Release Pull Request` action to create the release PR.
+## CONCLUSIONS
 
-- For a backport release, the base branch should be the major version branch that you ensured existed in step 2. For a normal release, the base branch should be the main branch for that repository (which should be the default value).
-- This should trigger the [`action-create-release-pr`](https://github.com/MetaMask/action-create-release-pr) workflow to create the release PR.
+As during the hackathon there was only a limited amount of time to create the most optimum solutions we utilised a number of functional implementations which have room for improvement.
 
-4. Update the changelog to move each change entry into the appropriate change category ([See here](https://keepachangelog.com/en/1.0.0/#types) for the full list of change categories, and the correct ordering), and edit them to be more easily understood by users of the package.
+1. Accounts
+Currently the number of accounts generated in the snap is passed as a function parameter and hardcoded as 3. A better option could be for the snap to use an external API (or a dedicated backend) to verify the next transaction nonce on each account for a given chain and only generate accounts with the nonce number greater than 0.
 
-- Generally any changes that don't affect consumers of the package (e.g. lockfile changes or development environment changes) are omitted. Exceptions may be made for changes that might be of interest despite not having an effect upon the published package (e.g. major test improvements, security improvements, improved documentation, etc.).
-- Try to explain each change in terms that users of the package would understand (e.g. avoid referencing internal variables/concepts).
-- Consolidate related changes into one change entry if it makes it easier to explain.
-- Run `yarn auto-changelog validate --rc` to check that the changelog is correctly formatted.
+2. Approval checks
+We used a short list of known addresses of tokens and actors to showcase the functionality, but optimally the approval check should be done more globally. This could be done, i.e. by using an RPC provider API (such as Infura) to find all approval transactions and parse them to display on the website.
 
-5. Review and QA the release.
-
-- If changes are made to the base branch, the release branch will need to be updated with these changes and review/QA will need to restart again. As such, it's probably best to avoid merging other PRs into the base branch while review is underway.
-
-6. Squash & Merge the release.
-
-- This should trigger the [`action-publish-release`](https://github.com/MetaMask/action-publish-release) workflow to tag the final release commit and publish the release on GitHub.
-
-7. Publish the release on npm.
-
-- Be very careful to use a clean local environment to publish the release, and follow exactly the same steps used during CI.
-- Use `npm publish --dry-run` to examine the release contents to ensure the correct files are included. Compare to previous releases if necessary (e.g. using `https://unpkg.com/browse/[package name]@[package version]/`).
-- Once you are confident the release contents are correct, publish the release using `npm publish`.
-
-## Notes
-
-- Babel is used for transpiling TypeScript to JavaScript, so when building with the CLI,
-  `transpilationMode` must be set to `localOnly` (default) or `localAndDeps`.
-- For the global `wallet` type to work, you have to add the following to your `tsconfig.json`:
-  ```json
-  {
-    "files": ["./node_modules/@metamask/snap-types/global.d.ts"]
-  }
-  ```
+3. Testing & Debugging
+Testing and debugging the actions which happen inside the snap is slow due to:
+The fact that on each iteration of the snap, the previous snap needs to be removed from Matamask and reinstalled
+There is no way of seeing console logs of the snap execution. A work around this is to run notifications from the dApp, but they very easily run into rate limits
+A testing setup and debugger console would be helpful.

@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/MetaMask/template-typescript-snap.git"
   },
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "main": "src/index.ts",
   "files": [
     "dist/",
