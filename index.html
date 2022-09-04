@@ -100,7 +100,7 @@
           html.push(approvalEl({ 
             account: element.account,
             asset: approval.tokenContract, 
-            spender: approval.spender, 
+            spender: approval.spenderName, 
             value: approval.amount 
           }));
         });
@@ -150,7 +150,7 @@
           for (const approval of element.approvals) {
             console.log('Revoking for', element.account, approval.tokenContract, approval.spender);
             const iconCell = document.querySelector(
-              'td.id_'+[element.account, approval.tokenContract, approval.spender].join('_')
+              'td.id_'+[element.account, approval.tokenContract, approval.spenderName].join('_')
             );
             iconCell.innerHTML = '🚫';
             const result = await ethereum.request({

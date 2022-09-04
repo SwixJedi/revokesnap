@@ -16,15 +16,6 @@ import { ERC20 } from './constants';
 import { actors } from './actors';
 import { tokens } from './tokens';
 
-export type AllowanceData = {
-	account: string,
-	approvals: {
-		tokenContract: string,
-		spender: string,
-		amount: string 
-	}[]
-}[]
-
 const revoke = async (params) => {
 	const [account, tokenContract, spender] = params;
 
@@ -118,7 +109,8 @@ const fetchApprovals = async () => {
 					approvals.push({
 						tokenContract: tokenAddress,
 						spender: actors[k].address,
-						amount: allowance.toString()
+						amount: allowance.toString(),
+						spenderName: actors[k].name
 					});
 				}
 			}

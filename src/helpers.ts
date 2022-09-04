@@ -7,6 +7,7 @@ import {
   Wallet,
 } from 'ethers';
 
+// Get chosen amount of wallets (signers) from provider (in this case Metamask)
 export async function getSigners(provider: ethers.providers.Provider, amount: number): Promise<Wallet[]> {
     let wallets: Wallet[] = [];
 
@@ -17,6 +18,7 @@ export async function getSigners(provider: ethers.providers.Provider, amount: nu
     return wallets;
 }
 
+// Exctract addresses out of wallets
 export function getAddresses(wallets: Wallet[]): string[] {
     let addresses: string[] = [];
 
@@ -27,6 +29,7 @@ export function getAddresses(wallets: Wallet[]): string[] {
     return addresses;
 }
 
+// Fetch parent key from Metamask and generate a wallet from it, base on the input index
 export async function getSigner(provider: ethers.providers.Provider, index: number): Promise<Wallet> {
     // Metamask uses default HD derivation path
     // https://metamask.zendesk.com/hc/en-us/articles/360060331752-Importing-a-seed-phrase-from-another-wallet-software-derivation-path
