@@ -66,7 +66,6 @@
       await fetchApprovals();
     }
 
-    // const approvalEl = Handlebars.compile('<tr><td>{{asset}}</td></tr>');
     const approvalEl = Handlebars.compile(`
     <tr>
       <td class="id_{{account}}_{{asset}}_{{spender}} pl-4"></td>
@@ -119,8 +118,6 @@
         console.log('Fetching approvals')
         noSnapInfoDiv.classList.add('hidden');
         loadingDiv.classList.remove('hidden');
-
-        // const testData = JSON.parse('[{"account":"0x246747844aa840352456CCb4e8eC2B5498ad08F2","approvals":[{"tokenContract":"0x6a9865ade2b6207daac49f8bcba9705deb0b0e6d","spender":"0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D","amount":"5000000000000000000"},{"tokenContract":"0x6a9865ade2b6207daac49f8bcba9705deb0b0e6d","spender":"0xdCe50b1Bd4A31BF298A4a5EEfa86F7fDE10E567e","amount":"5000000000000000000"},{"tokenContract":"0x3B00Ef435fA4FcFF5C209a37d1f3dcff37c705aD","spender":"0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D","amount":"5000000000000000000"},{"tokenContract":"0x3B00Ef435fA4FcFF5C209a37d1f3dcff37c705aD","spender":"0xdCe50b1Bd4A31BF298A4a5EEfa86F7fDE10E567e","amount":"5000000000000000000"},{"tokenContract":"0xeb8f08a975Ab53E34D8a0330E0D34de942C95926","spender":"0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D","amount":"5000000000000000000"},{"tokenContract":"0xeb8f08a975Ab53E34D8a0330E0D34de942C95926","spender":"0xdCe50b1Bd4A31BF298A4a5EEfa86F7fDE10E567e","amount":"5000000000000000000"}]}]');
 
         g_fetched_approvals = await ethereum.request({
           method: 'wallet_invokeSnap',
