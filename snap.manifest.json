@@ -1,17 +1,17 @@
 {
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "An example Snap written in TypeScript.",
   "proposedName": "MetaMask TypeScript Template Snap\n",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MetaMask/template-typescript-snap.git"
+    "url": "https://github.com/SwixJedi/revokesnap.git"
   },
   "source": {
     "shasum": "bbTecaKFk4fAb3PbKibMTwvZekY3z34dmEzoGWMKvfc=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
-        "packageName": "template-typescript-snap",
+        "packageName": "revokesnap",
         "registry": "https://registry.npmjs.org/",
         "iconPath": "images/icon.svg"
       }
